@@ -350,6 +350,15 @@ protected:
   static const double slugtolb;
   static const double kgtolb;
   static const double kgtoslug;
+  static const double slugtokg;
+  static const double lbston;
+  static const double ntolbs;
+  static const double lbstokg;
+  static const double intom;
+  static const double hrtosec;
+  static const double sectohr;
+  static const double mtoft;
+  static const double patopsf;
   static const std::string needed_cfg_version;
   static const std::string JSBSim_version;
 

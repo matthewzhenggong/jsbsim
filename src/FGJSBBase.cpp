@@ -104,6 +104,15 @@ const double FGJSBBase::slugtolb = 32.174049;
 const double FGJSBBase::lbtoslug = 1.0/slugtolb;
 const double FGJSBBase::kgtolb = 2.20462;
 const double FGJSBBase::kgtoslug = 0.06852168;
+const double FGJSBBase::slugtokg = 14.594;
+const double FGJSBBase::lbston = 4.448;
+const double FGJSBBase::ntolbs = 1.0/lbston;
+const double FGJSBBase::lbstokg = 0.45359237;
+const double FGJSBBase::intom = 0.0254;
+const double FGJSBBase::hrtosec = 3600;
+const double FGJSBBase::sectohr = 1.0/hrtosec;
+const double FGJSBBase::mtoft = 3.2808399;
+const double FGJSBBase::patopsf = 1.0/psftopa;
 
 const string FGJSBBase::needed_cfg_version = "2.0";
 const string FGJSBBase::JSBSim_version = "1.0 "__DATE__" "__TIME__;

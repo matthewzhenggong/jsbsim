@@ -119,6 +119,11 @@ Element::Element(const string& nm)
     // Force
     convert["N"]["LBS"] = 0.22482;
     convert["LBS"]["N"] = 1.0/convert["N"]["LBS"];
+    convert["N"]["KG"] = 0.102;
+    convert["KG"]["N"] = 9.8;
+    // Moments
+    convert["LBS*FT"]["N*M"] = 1.35581795;
+    convert["N*M"]["LBS*FT"] = 1/convert["LBS*FT"]["N*M"];
     // Velocity
     convert["KTS"]["FT/SEC"] = 1.68781;
     convert["FT/SEC"]["KTS"] = 1.0/convert["KTS"]["FT/SEC"];
@@ -129,6 +134,10 @@ Element::Element(const string& nm)
     convert["FT/SEC"]["M/SEC"] = 1.0/convert["M/SEC"]["FT/SEC"];
     convert["KM/SEC"]["FT/SEC"] = 3280.8399;
     convert["FT/SEC"]["KM/SEC"] = 1.0/convert["KM/SEC"]["FT/SEC"];
+    convert["KTS"]["M/SEC"] = convert["KTS"]["FT/SEC"]*convert["FT/SEC"]["M/SEC"];
+    convert["M/SEC"]["KTS"] = 1.0/convert["KTS"]["M/SEC"];
+    convert["KTS"]["M/S"] = convert["KTS"]["FT/SEC"]*convert["FT/SEC"]["M/SEC"];
+    convert["M/S"]["KTS"] = 1.0/convert["KTS"]["M/SEC"];
     // Torque
     convert["FT*LBS"]["N*M"] = 1.35581795;
     convert["N*M"]["FT*LBS"] = 1/convert["FT*LBS"]["N*M"];
@@ -199,6 +208,9 @@ Element::Element(const string& nm)
     convert["WATTS"]["WATTS"] = 1.00;
     // Force
     convert["N"]["N"] = 1.00;
+    // Moments
+    convert["LBS*FT"]["LBS*FT"] = 1.00;
+    convert["N*M"]["N*M"] = 1.00;
     // Velocity
     convert["FT/SEC"]["FT/SEC"] = 1.00;
     convert["KTS"]["KTS"] = 1.00;
