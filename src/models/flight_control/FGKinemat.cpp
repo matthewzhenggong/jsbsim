@@ -126,7 +126,7 @@ bool FGKinemat::Run(void )
 
     // A transition time of 0.0 means an infinite rate.
     // The output is reached in one step
-    if (TransitionTimes[ind] <= 0.0) {
+    if (TransitionTimes[ind] <= 0.0 || fcs->GetTrimStatus()) {
       Output = Input;
       break;
     } else {
