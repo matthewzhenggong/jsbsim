@@ -142,37 +142,56 @@ public:
 
   /// Gets the wing area
   double GetWingArea(void) const { return WingArea; }
+  double GetWingAreaSI(void) const { return fttom*fttom*WingArea; }
   /// Gets the wing span
   double GetWingSpan(void) const { return WingSpan; }
+  double GetWingSpanSI(void) const { return fttom*WingSpan; }
   /// Gets the average wing chord
   double Getcbar(void) const { return cbar; }
+  double GetcbarSI(void) const { return fttom*cbar; }
   double GetWingIncidence(void) const { return WingIncidence; }
   double GetWingIncidenceDeg(void) const { return WingIncidence*radtodeg; }
   double GetHTailArea(void) const { return HTailArea; }
+  double GetHTailAreaSI(void) const { return fttom*fttom*HTailArea; }
   double GetHTailArm(void)  const { return HTailArm; }
+  double GetHTailArmSI(void)  const { return fttom*HTailArm; }
   double GetVTailArea(void) const { return VTailArea; }
+  double GetVTailAreaSI(void) const { return fttom*fttom*VTailArea; }
   double GetVTailArm(void)  const { return VTailArm; }
+  double GetVTailArmSI(void)  const { return fttom*VTailArm; }
   double Getlbarh(void) const { return lbarh; } // HTailArm / cbar
   double Getlbarv(void) const { return lbarv; } // VTailArm / cbar
   double Getvbarh(void) const { return vbarh; } // H. Tail Volume
   double Getvbarv(void) const { return vbarv; } // V. Tail Volume
   const FGColumnVector3& GetMoments(void) const { return vMoments; }
+  FGColumnVector3 GetMomentsSI(void) const { return vMoments*lbston*fttom; }
   double GetMoments(int idx) const { return vMoments(idx); }
+  double GetMomentsSI(int idx) const { return vMoments(idx)*lbston*fttom; }
   const FGColumnVector3& GetForces(void) const { return vForces; }
+  FGColumnVector3 GetForcesSI(void) const { return vForces*lbston; }
   double GetForces(int idx) const { return vForces(idx); }
+  double GetForcesSI(int idx) const { return vForces(idx)*lbston; }
   const FGColumnVector3& GetXYZrp(void) const { return vXYZrp; }
+  FGColumnVector3 GetXYZrpSI(void) const { return vXYZrp*(fttom/12.0); }
   const FGColumnVector3& GetXYZvrp(void) const { return vXYZvrp; }
+  FGColumnVector3 GetXYZvrpSI(void) const { return vXYZvrp*(fttom/12.0); }
   const FGColumnVector3& GetXYZep(void) const { return vXYZep; }
+  FGColumnVector3 GetXYZepSI(void) const { return vXYZep*(fttom/12.0); }
   double GetXYZrp(int idx) const { return vXYZrp(idx); }
+  double GetXYZrpSI(int idx) const { return vXYZrp(idx)*(fttom/12.0); }
   double GetXYZvrp(int idx) const { return vXYZvrp(idx); }
+  double GetXYZvrpSI(int idx) const { return vXYZvrp(idx)*(fttom/12.0); }
   double GetXYZep(int idx) const { return vXYZep(idx); }
+  double GetXYZepSI(int idx) const { return vXYZep(idx)*(fttom/12.0); }
   void SetAircraftName(const std::string& name) {AircraftName = name;}
   void SetHoldDown(int hd) {HoldDown = hd;}
   int GetHoldDown(void) const {return HoldDown;}
 
   void SetXYZrp(int idx, double value) {vXYZrp(idx) = value;}
+  void SetXYZrpSI(int idx, double value) {vXYZrp(idx) = value*mtoft*12;}
 
   void SetWingArea(double S) {WingArea = S;}
+  void SetWingAreaSI(double S) {WingArea = S*mtoft*mtoft;}
 
   void bind(void);
   void unbind(void);

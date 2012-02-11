@@ -217,6 +217,23 @@ void FGAircraft::bind(void)
   PropertyManager->Tie("metrics/visualrefpoint-y-in", this, eY, (PMF)&FGAircraft::GetXYZvrp);
   PropertyManager->Tie("metrics/visualrefpoint-z-in", this, eZ, (PMF)&FGAircraft::GetXYZvrp);
   PropertyManager->Tie("forces/hold-down", this, &FGAircraft::GetHoldDown, &FGAircraft::SetHoldDown);
+  /// SI unit support
+  PropertyManager->Tie("metrics/Sw-sqmt", this, &FGAircraft::GetWingAreaSI);
+  PropertyManager->Tie("metrics/bw-mt", this, &FGAircraft::GetWingSpanSI);
+  PropertyManager->Tie("metrics/cbarw-mt", this, &FGAircraft::GetcbarSI);
+  PropertyManager->Tie("metrics/Sh-sqmt", this, &FGAircraft::GetHTailAreaSI);
+  PropertyManager->Tie("metrics/lh-mt", this, &FGAircraft::GetHTailArmSI);
+  PropertyManager->Tie("metrics/Sv-sqmt", this, &FGAircraft::GetVTailAreaSI);
+  PropertyManager->Tie("metrics/lv-mt", this, &FGAircraft::GetVTailArmSI);
+  PropertyManager->Tie("metrics/aero-rp-x-mt", this, eX, (PMF)&FGAircraft::GetXYZrpSI);
+  PropertyManager->Tie("metrics/aero-rp-y-mt", this, eY, (PMF)&FGAircraft::GetXYZrpSI);
+  PropertyManager->Tie("metrics/aero-rp-z-mt", this, eZ, (PMF)&FGAircraft::GetXYZrpSI);
+  PropertyManager->Tie("metrics/eyepoint-x-mt", this, eX, (PMF)&FGAircraft::GetXYZepSI);
+  PropertyManager->Tie("metrics/eyepoint-y-mt", this, eY,(PMF)&FGAircraft::GetXYZepSI);
+  PropertyManager->Tie("metrics/eyepoint-z-mt", this, eZ, (PMF)&FGAircraft::GetXYZepSI);
+  PropertyManager->Tie("metrics/visualrefpoint-x-mt", this, eX, (PMF)&FGAircraft::GetXYZvrpSI);
+  PropertyManager->Tie("metrics/visualrefpoint-y-mt", this, eY, (PMF)&FGAircraft::GetXYZvrpSI);
+  PropertyManager->Tie("metrics/visualrefpoint-z-mt", this, eZ, (PMF)&FGAircraft::GetXYZvrpSI);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
