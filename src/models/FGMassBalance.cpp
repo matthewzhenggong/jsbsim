@@ -382,6 +382,19 @@ void FGMassBalance::bind(void)
                        (PMF)&FGMassBalance::GetXYZcg);
   PropertyManager->Tie("inertia/cg-z-in", this,3,
                        (PMF)&FGMassBalance::GetXYZcg);
+  /// SI unit support
+  PropertyManager->Tie("inertia/mass-kg", this,
+                       &FGMassBalance::GetMassSI);
+  PropertyManager->Tie("inertia/weight-nt", this,
+                       &FGMassBalance::GetWeightSI);
+  PropertyManager->Tie("inertia/empty-weight-nt", this,
+                       &FGMassBalance::GetEmptyWeightSI);
+  PropertyManager->Tie("inertia/cg-x-mt", this,1,
+                       (PMF)&FGMassBalance::GetXYZcgSI);
+  PropertyManager->Tie("inertia/cg-y-mt", this,2,
+                       (PMF)&FGMassBalance::GetXYZcgSI);
+  PropertyManager->Tie("inertia/cg-z-mt", this,3,
+                       (PMF)&FGMassBalance::GetXYZcgSI);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

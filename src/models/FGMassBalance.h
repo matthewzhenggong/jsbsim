@@ -126,12 +126,19 @@ public:
   bool Run(bool Holding);
 
   double GetMass(void) const {return Mass;}
+  double GetMassSI(void) const {return Mass*slugtokg;}
   double GetWeight(void) const {return Weight;}
+  double GetWeightSI(void) const {return Weight*lbston;}
   double GetEmptyWeight(void) const {return EmptyWeight;}
+  double GetEmptyWeightSI(void) const {return EmptyWeight*lbston;}
   const FGColumnVector3& GetXYZcg(void) const {return vXYZcg;}
+  FGColumnVector3 GetXYZcgSI(void) const {return vXYZcg*(fttom/12.0);}
   double GetXYZcg(int axis) const  {return vXYZcg(axis);}
+  double GetXYZcgSI(int axis) const  {return vXYZcg(axis)*(fttom/12.0);}
   const FGColumnVector3& GetDeltaXYZcg(void) const {return vDeltaXYZcg;}
+  FGColumnVector3 GetDeltaXYZcgSI(void) const {return vDeltaXYZcg*(fttom/12.0);}
   double GetDeltaXYZcg(int axis) const  {return vDeltaXYZcg(axis);}
+  double GetDeltaXYZcgSI(int axis) const  {return vDeltaXYZcg(axis)*(fttom/12.0);}
 
   /** Computes the inertia contribution of a pointmass.
       Computes and returns the inertia matrix of a pointmass of mass
@@ -168,13 +175,16 @@ public:
   FGColumnVector3 StructuralToBody(const FGColumnVector3& r) const;
 
   void SetEmptyWeight(double EW) { EmptyWeight = EW;}
+  void SetEmptyWeightSI(double EW) { EmptyWeight = EW*ntolbs;}
   void SetBaseCG(const FGColumnVector3& CG) {vbaseXYZcg = vXYZcg = CG;}
+  void SetBaseCGSI(const FGColumnVector3& CG) {vbaseXYZcg = vXYZcg = CG*mtoft*12.0;}
 
   void AddPointMass(Element* el);
   double GetTotalPointMassWeight(void) const;
 
   const FGColumnVector3& GetPointMassMoment(void);
   const FGMatrix33& GetJ(void) const {return mJ;}
+  FGMatrix33 GetJSI(void) const {return mJ*slugtokg*fttom*fttom;}
   const FGMatrix33& GetJinv(void) const {return mJinv;}
   void SetAircraftBaseInertias(const FGMatrix33& BaseJ) {baseJ = BaseJ;}
   void GetMassPropertiesReport(void) const;
