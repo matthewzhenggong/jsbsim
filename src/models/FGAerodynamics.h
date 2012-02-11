@@ -88,7 +88,7 @@ CLASS DOCUMENTATION
        <function>
          {function contents}
        </function>
-       <axis name="{LIFT | DRAG | SIDE | ROLL | PITCH | YAW}">
+       <axis name="{LIFT | DRAG | SIDE | ROLL | PITCH | YAW} unit="{LBS | N}"">
          {force or moment definitions}
        </axis>
        {additional axis definitions}
@@ -147,31 +147,37 @@ public:
   /** Gets the total aerodynamic force vector.
       @return a force vector reference. */
   const FGColumnVector3& GetForces(void) const {return vForces;}
+  FGColumnVector3 GetForcesSI(void) const {return vForces*lbston;}
 
   /** Gets the aerodynamic force for an axis.
       @param n Axis index. This could be 0, 1, or 2, or one of the
                axis enums: eX, eY, eZ.
       @return the force acting on an axis */
   double GetForces(int n) const {return vForces(n);}
+  double GetForcesSI(int n) const {return vForces(n)*lbston;}
 
   /** Gets the total aerodynamic moment vector.
       @return a moment vector reference. */
   const FGColumnVector3& GetMoments(void) const {return vMoments;}
+  FGColumnVector3 GetMomentsSI(void) const {return vMoments*lbston;}
 
   /** Gets the aerodynamic moment for an axis.
       @return the moment about a single axis (as described also in the
               similar call to GetForces(int n).*/
   double GetMoments(int n) const {return vMoments(n);}
+  double GetMomentsSI(int n) const {return vMoments(n)*lbston;}
 
   /** Retrieves the aerodynamic forces in the wind axes.
       @return a reference to a column vector containing the wind axis forces. */
   const FGColumnVector3& GetvFw(void) const { return vFw; }
+  FGColumnVector3 GetvFwSI(void) const { return vFw*lbston; }
 
   /** Retrieves the aerodynamic forces in the wind axes, given an axis.
       @param axis the axis to return the force for (eX, eY, eZ).
       @return a reference to a column vector containing the requested wind
       axis force. */
   double GetvFw(int axis) const { return vFw(axis); }
+  double GetvFwSI(int axis) const { return vFw(axis)*lbston; }
 
   /** Retrieves the lift over drag ratio */
   double GetLoD(void) const { return lod; }
@@ -236,6 +242,8 @@ private:
   double impending_stall, stall_hyst;
   double bi2vel, ci2vel,alphaw;
   double clsq, lod, qbar_area;
+  double qbar_area_SI;
+  double *Prefix;
 
   typedef double (FGAerodynamics::*PMF)(int) const;
   void DetermineAxisSystem(void);

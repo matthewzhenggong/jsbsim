@@ -77,6 +77,7 @@ FGAerodynamics::FGAerodynamics(FGFDMExec* FDMExec) : FGModel(FDMExec)
   axisType = atNone;
 
   AeroFunctions = new AeroFunctionArray[6];
+  Prefix = new double[6];
 
   impending_stall = stall_hyst = 0.0;
   alphaclmin = alphaclmax = 0.0;
@@ -103,6 +104,8 @@ FGAerodynamics::~FGAerodynamics()
       delete AeroFunctions[i][j];
 
   delete[] AeroFunctions;
+  delete[] Prefix;
+
 
   delete AeroRPShift;
 
@@ -147,6 +150,7 @@ bool FGAerodynamics::Run(bool Holding)
   }
   alphaw = in.Alpha + in.Wingincidence;
   qbar_area = in.Wingarea * in.Qbar;
+  qbar_area_SI = qbar_area * lbston;
 
   if (alphaclmax != 0) {
     if (in.Alpha > 0.85*alphaclmax) {
@@ -169,7 +173,7 @@ bool FGAerodynamics::Run(bool Holding)
 
   for (axis_ctr = 0; axis_ctr < 3; axis_ctr++) {
     for (ctr=0; ctr < AeroFunctions[axis_ctr].size(); ctr++) {
-      vFnative(axis_ctr+1) += AeroFunctions[axis_ctr][ctr]->GetValue();
+      vFnative(axis_ctr+1) += AeroFunctions[axis_ctr][ctr]->GetValue() * Prefix[axis_ctr];
     }
   }
 
@@ -222,7 +226,7 @@ bool FGAerodynamics::Run(bool Holding)
 
   for (axis_ctr = 0; axis_ctr < 3; axis_ctr++) {
     for (ctr = 0; ctr < AeroFunctions[axis_ctr+3].size(); ctr++) {
-      vMoments(axis_ctr+1) += AeroFunctions[axis_ctr+3][ctr]->GetValue();
+      vMoments(axis_ctr+1) += AeroFunctions[axis_ctr+3][ctr]->GetValue() * Prefix[axis_ctr+3];
     }
   }
 
@@ -292,7 +296,36 @@ bool FGAerodynamics::Load(Element *element)
       }
       function_element = axis_element->FindNextElement("function");
     }
-    AeroFunctions[AxisIdx[axis]] = ca;
+    int idx = AxisIdx[axis];
+    AeroFunctions[idx] = ca;
+    string supplied_units = axis_element->GetAttributeValue("unit");
+    if (!supplied_units.empty())
+    {
+      string target_units;
+      if (idx < 3)
+      {
+        target_units = "LBS";
+      }
+      else
+      {
+        target_units = "LBS*FT";
+      }
+      if (Element::convert.find(supplied_units) == Element::convert.end()) {
+          cerr << endl << "Supplied unit: \"" << supplied_units << "\" does not exist (typo?). Add new unit"
+               << " conversion in FGXMLElement.cpp." << endl;
+          exit(-1);
+      }
+      if (Element::convert[supplied_units].find(target_units) == Element::convert[supplied_units].end()) {
+          cerr << endl << "Supplied unit: \"" << supplied_units << "\" cannot be converted to "
+               << target_units << ". Add new unit conversion in FGXMLElement.cpp or fix typo" << endl;
+          exit(-1);
+      }
+      Prefix[idx] = Element::convert[supplied_units][target_units];
+    }
+    else
+    {
+      Prefix[idx] = 1.0;
+    }
     axis_element = document->FindNextElement("axis");
   }
 
@@ -438,6 +471,26 @@ void FGAerodynamics::bind(void)
                         &FGAerodynamics::GetStallWarn);
   PropertyManager->Tie("aero/stall-hyst-norm", this,
                         &FGAerodynamics::GetHysteresisParm);
+  /// SI unit support
+  PropertyManager->Tie("forces/fbx-aero-nt", this,1,
+                       (PMF)&FGAerodynamics::GetForcesSI);
+  PropertyManager->Tie("forces/fby-aero-nt", this,2,
+                       (PMF)&FGAerodynamics::GetForcesSI);
+  PropertyManager->Tie("forces/fbz-aero-nt", this,3,
+                       (PMF)&FGAerodynamics::GetForcesSI);
+  PropertyManager->Tie("moments/l-aero-ntmt", this,1,
+                       (PMF)&FGAerodynamics::GetMomentsSI);
+  PropertyManager->Tie("moments/m-aero-ntmt", this,2,
+                       (PMF)&FGAerodynamics::GetMomentsSI);
+  PropertyManager->Tie("moments/n-aero-ntmt", this,3,
+                       (PMF)&FGAerodynamics::GetMomentsSI);
+  PropertyManager->Tie("forces/fwx-aero-nt", this,1,
+                       (PMF)&FGAerodynamics::GetvFwSI);
+  PropertyManager->Tie("forces/fwy-aero-nt", this,2,
+                       (PMF)&FGAerodynamics::GetvFwSI);
+  PropertyManager->Tie("forces/fwz-aero-nt", this,3,
+                       (PMF)&FGAerodynamics::GetvFwSI);
+  PropertyManager->Tie("aero/qbar-area-nt", &qbar_area_SI);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
