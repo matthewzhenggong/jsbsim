@@ -189,6 +189,7 @@ public:
               expressed in Local horizontal frame.
   */
   const FGColumnVector3& GetVel(void) const { return vVel; }
+  FGColumnVector3 GetVelSI(void) const { return GetVel()*fttom; }
 
   /** Retrieves the body frame vehicle velocity vector.
       The vector returned is represented by an FGColumnVector reference. The vector
@@ -201,6 +202,7 @@ public:
       @return The body frame vehicle velocity vector in ft/sec.
   */
   const FGColumnVector3& GetUVW(void) const { return VState.vUVW; }
+  FGColumnVector3 GetUVWSI(void) const { return GetUVW()*fttom; }
 
   /** Retrieves the body angular rates vector, relative to the ECEF frame.
       Retrieves the body angular rates (p, q, r), which are calculated by integration
@@ -259,6 +261,7 @@ public:
       @return The body frame velocity component.
   */
   double GetUVW(int idx) const { return VState.vUVW(idx); }
+  double GetUVWSI (int idx) const { return GetUVW(idx)*fttom; }
 
   /** Retrieves a Local frame velocity component.
       Retrieves a Local frame velocity component. The velocity returned is
@@ -272,18 +275,22 @@ public:
       @return The body frame velocity component.
   */
   double GetVel(int idx) const { return vVel(idx); }
+  double GetVelSI(int idx) const { return vVel(idx)*fttom; }
 
   /** Retrieves the total inertial velocity in ft/sec.
   */
   double GetInertialVelocityMagnitude(void) const { return VState.vInertialVelocity.Magnitude(); }
+  double GetInertialVelocityMagnitudeSI(void) const { return VState.vInertialVelocity.Magnitude()*fttom; }
 
   /** Retrieves the inertial velocity vector in ft/sec.
   */
   const FGColumnVector3& GetInertialVelocity(void) const { return VState.vInertialVelocity; }
+  FGColumnVector3 GetInertialVelocitySI(void) const { return VState.vInertialVelocity*fttom; }
 
   /** Retrieves the inertial position vector.
   */
   const FGColumnVector3& GetInertialPosition(void) const { return VState.vInertialPosition; }
+  FGColumnVector3 GetInertialPositionSI(void) const { return VState.vInertialPosition*fttom; }
 
   /** Calculates and retrieves the velocity vector relative to the earth centered earth fixed (ECEF) frame.
   */
@@ -315,6 +322,7 @@ public:
       @return The body frame angular velocity component.
   */
   double GetPQR(int axis) const {return VState.vPQR(axis);}
+  double GetPQRDeg(int axis) const {return VState.vPQR(axis)*radtodeg;}
 
   /** Retrieves a body frame angular velocity component relative to the ECI (inertial) frame.
       Retrieves a body frame angular velocity component. The angular velocity
@@ -328,6 +336,7 @@ public:
       @return The body frame angular velocity component.
   */
   double GetPQRi(int axis) const {return VState.vPQRi(axis);}
+  double GetPQRiDeg(int axis) const {return VState.vPQRi(axis)*radtodeg;}
 
   /** Retrieves a vehicle Euler angle component.
       Retrieves an Euler angle (Phi, Theta, or Psi) from the quaternion that
@@ -340,6 +349,7 @@ public:
       @return An Euler angle.
   */
   double GetEuler(int axis) const { return VState.qAttitudeLocal.GetEuler(axis); }
+  double GetEulerDeg(int axis) const { return VState.qAttitudeLocal.GetEuler(axis)*radtodeg; }
 
   /** Retrieves the cosine of a vehicle Euler angle component.
       Retrieves the cosine of an Euler angle (Phi, Theta, or Psi) from the
@@ -371,6 +381,7 @@ public:
       @return The current rate of change in altitude.
   */
   double Gethdot(void) const { return -vVel(eDown); }
+  double GethdotSI(void) const { return -vVel(eDown)*fttom; }
 
   /** Returns the "constant" LocalTerrainRadius.
       The LocalTerrainRadius parameter is set by the calling application or set to
@@ -379,6 +390,7 @@ public:
       @return distance of the local terrain from the center of the earth.
       */
   double GetLocalTerrainRadius(void) const;
+  double GetLocalTerrainRadiusSI(void) const { return GetLocalTerrainRadius()*fttom; }
 
   double GetEarthPositionAngle(void) const { return VState.vLocation.GetEPA(); }
 
@@ -389,11 +401,15 @@ public:
   void RecomputeLocalTerrainVelocity();
 
   double GetTerrainElevation(void) const { return GetLocalTerrainRadius() - VState.vLocation.GetSeaLevelRadius(); }
+  double GetTerrainElevationSI(void) const { return GetTerrainElevation()*fttom; }
+
   double GetDistanceAGL(void)  const;
+  double GetDistanceAGLSI(void)  const { return GetDistanceAGL()*fttom; }
   double GetRadius(void) const {
       if (VState.vLocation.GetRadius() == 0) return 1.0;
       else return VState.vLocation.GetRadius();
   }
+  double GetRadiusSI(void) const { return GetRadius()*fttom; }
   double GetLongitude(void) const { return VState.vLocation.GetLongitude(); }
   double GetLatitude(void) const { return VState.vLocation.GetLatitude(); }
 
@@ -401,6 +417,7 @@ public:
   double GetGeodLatitudeDeg(void) const { return VState.vLocation.GetGeodLatitudeDeg(); }
 
   double GetGeodeticAltitude(void) const { return VState.vLocation.GetGeodAltitude(); }
+  double GetGeodeticAltitudeSI(void) const { return VState.vLocation.GetGeodAltitude()*fttom; }
 
   double GetLongitudeDeg(void) const { return VState.vLocation.GetLongitudeDeg(); }
   double GetLatitudeDeg(void) const { return VState.vLocation.GetLatitudeDeg(); }
@@ -514,8 +531,13 @@ public:
   void SetAltitudeASLmeters(double altASL) { SetAltitudeASL(altASL/fttom); }
 
   void SetSeaLevelRadius(double tt);
+  void SetSeaLevelRadiusSI(double tt) { SetSeaLevelRadius(tt*mtoft); }
+
   void SetTerrainElevation(double tt);
+  void SetTerrainElevationSI(double tt) { SetTerrainElevation(tt*mtoft); }
+
   void SetDistanceAGL(double tt);
+  void SetDistanceAGLSI(double tt) { SetDistanceAGL(tt*mtoft); }
 
   void SetInitialState(const FGInitialCondition *);
   void SetLocation(const FGLocation& l);
@@ -524,11 +546,13 @@ public:
       FGLocation l = FGLocation(lv);
       SetLocation(l);
   }
+  void SetLocationSI(const FGColumnVector3& lv){ SetLocation(lv*mtoft); }
   void SetPosition(const double Lon, const double Lat, const double Radius)
   {
       FGLocation l = FGLocation(Lon, Lat, Radius);
       SetLocation(l);
   }
+  void SetPositionSI(const double Lon, const double Lat, const double Radius) { SetPosition(Lon, Lat, Radius*mtoft); }
 
   void NudgeBodyLocation(const FGColumnVector3& deltaLoc) {
     VState.vInertialPosition -= Tb2i*deltaLoc;
