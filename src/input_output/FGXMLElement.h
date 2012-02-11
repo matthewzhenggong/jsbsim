@@ -332,6 +332,8 @@ private:
   std::vector <std::string> attribute_key;
   Element *parent;
   unsigned int element_index;
+
+public:
   typedef std::map <std::string, std::map <std::string, double> > tMapConvert;
   static tMapConvert convert;
   static bool converterIsInitialized;
