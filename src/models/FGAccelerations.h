@@ -137,6 +137,7 @@ public:
       @return Body axis translational acceleration in ft/sec^2.
   */
   const FGColumnVector3& GetUVWdot(void) const { return vUVWdot; }
+  FGColumnVector3 GetUVWdotSI(void) const { return GetUVWdot()*fttom; }
 
   /** Retrieves the body axis acceleration in the ECI frame.
       Retrieves the computed body axis accelerations based on the applied forces.
@@ -153,6 +154,7 @@ public:
       @return Body axis translational acceleration in ft/sec^2.
   */
   const FGColumnVector3& GetUVWidot(void) const { return vUVWidot; }
+  FGColumnVector3 GetUVWidotSI(void) const { return GetUVWidot()*fttom; }
 
   /** Retrieves the body axis angular acceleration vector.
       Retrieves the body axis angular acceleration vector in rad/sec^2. The
@@ -196,6 +198,7 @@ public:
       @return The body frame acceleration component.
   */
   double GetUVWdot(int idx) const { return vUVWdot(idx); }
+  double GetUVWdotSI(int idx) const { return vUVWdot(idx)*fttom; }
 
   /** Retrieves the acceleration resulting from the applied forces.
       Retrieves the ratio of the sum of all forces applied on the craft to its
