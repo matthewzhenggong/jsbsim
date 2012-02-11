@@ -172,6 +172,11 @@ public:
   const FGColumnVector3& GetMoments(void) const {return vMoments;}
   double GetMoments(int n) const {return vMoments(n);}
 
+  FGColumnVector3 GetForcesSI(void) const {return vForces*lbston; }
+  double GetForcesSI(int n) const { return vForces(n)*lbston;}
+  FGColumnVector3 GetMomentsSI(void) const {return vMoments*lbston*fttom;}
+  double GetMomentsSI(int n) const {return vMoments(n)*lbston*fttom;}
+
   bool GetRefuel(void) const {return refuel;}
   void SetRefuel(bool setting) {refuel = setting;}
   bool GetFuelDump(void) const {return dump;}

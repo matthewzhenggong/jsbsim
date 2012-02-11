@@ -802,6 +802,19 @@ void FGPropulsion::bind(void)
                        (PMF)&FGPropulsion::GetMoments);
   PropertyManager->Tie("moments/n-prop-lbsft", this,3,
                        (PMF)&FGPropulsion::GetMoments);
+  /// SI unit support
+  PropertyManager->Tie("forces/fbx-prop-nt", this,1,
+                       (PMF)&FGPropulsion::GetForcesSI);
+  PropertyManager->Tie("forces/fby-prop-nt", this,2,
+                       (PMF)&FGPropulsion::GetForcesSI);
+  PropertyManager->Tie("forces/fbz-prop-nt", this,3,
+                       (PMF)&FGPropulsion::GetForcesSI);
+  PropertyManager->Tie("moments/l-prop-ntmt", this,1,
+                       (PMF)&FGPropulsion::GetMomentsSI);
+  PropertyManager->Tie("moments/m-prop-ntmt", this,2,
+                       (PMF)&FGPropulsion::GetMomentsSI);
+  PropertyManager->Tie("moments/n-prop-ntmt", this,3,
+                       (PMF)&FGPropulsion::GetMomentsSI);
 
 }
 
