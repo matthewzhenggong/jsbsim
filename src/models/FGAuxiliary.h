@@ -133,20 +133,33 @@ public:
   double GetVcalibratedFPS(void) const { return vcas; }
   /** Returns Calibrated airspeed in knots.*/
   double GetVcalibratedKTS(void) const { return vcas*fpstokts; }
+  /** Returns Calibrated airspeed in mps.*/
+  double GetVcalibratedMPS(void) const { return vcas*fttom; }
+  /** Returns Calibrated airspeed in kmph.*/
+  double GetVcalibratedKMPH(void) const { return vcas*fttom*3.6; }
   /** Returns equivalent airspeed in feet/second. */
   double GetVequivalentFPS(void) const { return veas; }
   /** Returns equivalent airspeed in knots. */
   double GetVequivalentKTS(void) const { return veas*fpstokts; }
+  /** Returns equivalent airspeed in mps. */
+  double GetVequivalentMPS(void) const { return veas*fttom; }
+  /** Returns equivalent airspeed in kmph. */
+  double GetVequivalentKMPH(void) const { return veas*fttom*3.6; }
   /** Returns the true airspeed in feet per second. */
   double GetVtrueFPS() const { return vtrue; }
   /** Returns the true airspeed in knots. */
   double GetVtrueKTS() const { return vtrue * fpstokts; }
+  /** Returns the true airspeed in mps. */
+  double GetVtrueMPS(void) const { return vtrue * fttom; }
+  /** Returns the true airspeed in kmph. */
+  double GetVtrueKMPH(void) const { return vtrue * fttom * 3.6; }
 
   /** Returns the total pressure.
       Total pressure is freestream total pressure for
       subsonic only. For supersonic it is the 1D total pressure
       behind a normal shock. */
   double GetTotalPressure(void) const { return pt; }
+  double GetTotalPressureSI(void) const { return pt*psftopa; }
 
   /** Returns the total temperature.
     The total temperature ("tat", isentropic flow) is calculated:
@@ -159,22 +172,30 @@ public:
   double GetTAT_C(void) const { return tatc; }
 
   double GetPilotAccel(int idx)  const { return vPilotAccel(idx);  }
+  double GetPilotAccelSI(int idx)  const { return vPilotAccel(idx)*fttom;  }
   double GetNpilot(int idx)      const { return vPilotAccelN(idx); }
   double GetAeroPQR(int axis)    const { return vAeroPQR(axis);    }
+  double GetAeroPQRDeg(int axis)    const { return vAeroPQR(axis)*radtodeg;    }
   double GetEulerRates(int axis) const { return vEulerRates(axis); }
+  double GetEulerRatesDeg(int axis) const { return vEulerRates(axis)*radtodeg; }
 
   const FGColumnVector3& GetPilotAccel (void) const { return vPilotAccel;  }
+  FGColumnVector3       GetPilotAccelSI(void) const { return vPilotAccel*fttom;}
   const FGColumnVector3& GetNpilot     (void) const { return vPilotAccelN; }
   const FGColumnVector3& GetNcg        (void) const { return vNcg;         }
   double GetNcg                     (int idx) const { return vNcg(idx);    }
   double GetNlf                        (void) const;
   const FGColumnVector3& GetAeroPQR    (void) const { return vAeroPQR;     }
+  FGColumnVector3        GetAeroPQRDeg (void) const { return vAeroPQR*radtodeg;}
   const FGColumnVector3& GetEulerRates (void) const { return vEulerRates;  }
+  FGColumnVector3     GetEulerRatesDeg (void) const { return vEulerRates*radtodeg;}
   const FGColumnVector3& GetAeroUVW    (void) const { return vAeroUVW;     }
+  FGColumnVector3        GetAeroUVWSI  (void) const { return vAeroUVW*fttom;}
   const FGLocation&      GetLocationVRP(void) const { return vLocationVRP; }
 
   double GethVRP(void) const;
   double GetAeroUVW (int idx) const { return vAeroUVW(idx); }
+  double GetAeroUVWSI (int idx) const { return vAeroUVW(idx)*fttom; }
   double Getalpha   (void) const { return alpha;      }
   double Getbeta    (void) const { return beta;       }
   double Getadot    (void) const { return adot;       }
@@ -203,18 +224,23 @@ public:
   const FGMatrix33& GetTb2w(void) { return mTb2w; }
 
   double Getqbar          (void) const { return qbar;       }
+  double GetqbarSI        (void) const { return qbar*psftopa;}
   double GetqbarUW        (void) const { return qbarUW;     }
+  double GetqbarUWSI      (void) const { return qbarUW*psftopa;}
   double GetqbarUV        (void) const { return qbarUV;     }
+  double GetqbarUVSI      (void) const { return qbarUV*psftopa;}
   double GetReynoldsNumber(void) const { return Re;         }
 
   /** Gets the magnitude of total vehicle velocity including wind effects in feet per second. */
   double GetVt            (void) const { return Vt;         }
+  double GetVtSI          (void) const { return Vt*fttom;   }
 
   /** Gets the ground speed in feet per second.
       The magnitude is the square root of the sum of the squares (RSS) of the 
       vehicle north and east velocity components.
       @return The magnitude of the vehicle velocity in the horizontal plane. */
   double GetVground       (void) const { return Vground;    }
+  double GetVgroundSI     (void) const { return Vground*fttom;}
 
   /** Gets the Mach number. */
   double GetMach          (void) const { return Mach;       }
@@ -228,10 +254,14 @@ public:
   const FGColumnVector3& GetNwcg(void) const { return vNwcg; }
 
   double GetHOverBCG(void) const { return hoverbcg; }
+  double GetHOverBCGSI(void) const { return hoverbcg*fttom; }
   double GetHOverBMAC(void) const { return hoverbmac; }
+  double GetHOverBMACSI(void) const { return hoverbmac*fttom; }
 
   double GetGamma(void)              const { return gamma;         }
+  double GetGammaDeg(void)           const { return gamma*radtodeg;}
   double GetGroundTrack(void)        const { return psigt;         }
+  double GetGroundTrackDeg(void)     const { return psigt*radtodeg;}
 
   double GetHeadWind(void) const;
   double GetCrossWind(void) const;
