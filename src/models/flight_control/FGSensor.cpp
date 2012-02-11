@@ -156,6 +156,15 @@ void FGSensor::ProcessSensorSignal(void)
 
   if (fail_stuck) {
     Output = PreviousOutput;
+  } else if (fcs->GetTrimStatus()) {
+    if (lag != 0.0)            {PreviousOutput = Output;    PreviousInput  = Input;}
+    if (drift_rate != 0.0)     drift = 0;
+    if (gain != 0.0)           Gain();      // models a finite gain
+    if (bias != 0.0)           Bias();      // models a finite bias
+
+    if (delay != 0)            for (int i=0; i<delay; i++) output_array[i] = Output;
+
+    Clip();
   } else {
     if (lag != 0.0)            Lag();       // models sensor lag and filter
     if (noise_variance != 0.0) Noise();     // models noise
