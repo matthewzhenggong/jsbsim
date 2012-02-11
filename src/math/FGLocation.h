@@ -322,6 +322,7 @@ public:
       always positive. */
   //double GetRadius() const { return mECLoc.Magnitude(); } // may not work with FlightGear
   double GetRadius() const { ComputeDerived(); return mRadius; }
+  double GetRadiusSI() const { return GetRadius()*fttom; }
 
   /** @name Functions that rely on the ground callback
       The following functions allow to set and get the vehicle position above
