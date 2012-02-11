@@ -138,26 +138,32 @@ public:
 
   /// Retrieves the total wind components in NED frame.
   virtual const FGColumnVector3& GetTotalWindNED(void) const { return vTotalWindNED; }
+  FGColumnVector3 GetTotalWindNEDSI(void) const { return GetTotalWindNED() * fttom; }
 
   /// Retrieves a total wind component in NED frame.
   virtual double GetTotalWindNED(int idx) const {return vTotalWindNED(idx);}
+  double GetTotalWindNEDSI(int idx) const {return GetTotalWindNED(idx) * fttom;}
 
   // WIND access functions
 
   /// Sets the wind components in NED frame.
   virtual void SetWindNED(double wN, double wE, double wD) { vWindNED(1)=wN; vWindNED(2)=wE; vWindNED(3)=wD;}
+  void SetWindNEDSI(double wN, double wE, double wD) { SetWindNED(wN * mtoft, wE * mtoft, wD * mtoft);}
 
   /// Sets a wind component in NED frame.
   virtual void SetWindNED(int idx, double wind) { vWindNED(idx)=wind;}
+  void SetWindNEDSI(int idx, double wind) { SetWindNED(idx, wind * mtoft);}
 
   /// Sets the wind components in NED frame.
   virtual void SetWindNED(const FGColumnVector3& wind) { vWindNED=wind; }
 
   /// Retrieves the wind components in NED frame.
   virtual const FGColumnVector3& GetWindNED(void) const { return vWindNED; }
+  FGColumnVector3 GetWindNEDSI(void) const { return GetWindNED() * fttom; }
 
   /// Retrieves a wind component in NED frame.
   virtual double GetWindNED(int idx) const {return vWindNED(idx);}
+  double GetWindNEDSI(int idx) const {return GetWindNED(idx) * fttom;}
 
   /** Retrieves the direction that the wind is coming from.
       The direction is defined as north=0 and increases counterclockwise.
@@ -173,28 +179,36 @@ public:
   virtual void SetWindPsi(double dir);
 
   virtual void SetWindspeed(double speed);
+  void SetWindspeedSI(double speed) { SetWindspeed(speed * mtoft);}
 
   virtual double GetWindspeed(void) const;
+  double GetWindspeedSI(void) const {return GetWindspeed() * fttom;}
 
   // GUST access functions
 
   /// Sets a gust component in NED frame.
   virtual void SetGustNED(int idx, double gust) { vGustNED(idx)=gust;}
+  void SetGustNEDSI(int idx, double gust) { SetGustNED(idx, gust * mtoft);}
 
   /// Sets a turbulence component in NED frame.
   virtual void SetTurbNED(int idx, double turb) { vTurbulenceNED(idx)=turb;}
+  void SetTurbNEDSI(int idx, double turb) { SetTurbNED(idx, turb * mtoft);}
 
   /// Sets the gust components in NED frame.
   virtual void SetGustNED(double gN, double gE, double gD) { vGustNED(eNorth)=gN; vGustNED(eEast)=gE; vGustNED(eDown)=gD;}
+  void SetGustNEDSI(double gN, double gE, double gD) { SetGustNED(gN * mtoft, gE * mtoft, gD * mtoft);}
 
   /// Retrieves a gust component in NED frame.
   virtual double GetGustNED(int idx) const {return vGustNED(idx);}
+  double GetGustNEDSI(int idx) const {return GetGustNED(idx) * fttom;}
 
   /// Retrieves a turbulence component in NED frame.
   virtual double GetTurbNED(int idx) const {return vTurbulenceNED(idx);}
+  double GetTurbNEDSI(int idx) const {return GetTurbNED(idx) * fttom;}
 
   /// Retrieves the gust components in NED frame.
   virtual const FGColumnVector3& GetGustNED(void) const {return vGustNED;}
+  FGColumnVector3 GetGustNEDSI(void) const {return GetGustNED() * fttom;}
 
   /** Turbulence models available: ttNone, ttStandard, ttBerndt, ttCulp, ttMilspec, ttTustin */
   virtual void   SetTurbType(tType tt) {turbType = tt;}

@@ -483,20 +483,27 @@ void FGWinds::bind(void)
   PropertyManager->Tie("atmosphere/psiw-rad", this, &FGWinds::GetWindPsi, &FGWinds::SetWindPsi);
   PropertyManager->Tie("atmosphere/wind-north-fps", this, eNorth, (PMF)&FGWinds::GetWindNED,
                                                           (PMFd)&FGWinds::SetWindNED);
+  PropertyManager->Tie("atmosphere/wind-north-mps", this, eNorth, (PMF)&FGWinds::GetWindNEDSI, (PMFd)&FGWinds::SetWindNEDSI);
   PropertyManager->Tie("atmosphere/wind-east-fps",  this, eEast, (PMF)&FGWinds::GetWindNED,
                                                           (PMFd)&FGWinds::SetWindNED);
+  PropertyManager->Tie("atmosphere/wind-east-mps",  this, eEast, (PMF)&FGWinds::GetWindNEDSI, (PMFd)&FGWinds::SetWindNEDSI);
   PropertyManager->Tie("atmosphere/wind-down-fps",  this, eDown, (PMF)&FGWinds::GetWindNED,
                                                           (PMFd)&FGWinds::SetWindNED);
+  PropertyManager->Tie("atmosphere/wind-down-mps",  this, eDown, (PMF)&FGWinds::GetWindNEDSI, (PMFd)&FGWinds::SetWindNEDSI);
   PropertyManager->Tie("atmosphere/wind-mag-fps", this, &FGWinds::GetWindspeed,
                                                         &FGWinds::SetWindspeed);
+  PropertyManager->Tie("atmosphere/wind-mag-mps", this, &FGWinds::GetWindspeedSI, &FGWinds::SetWindspeedSI);
 
   // User-specifieded gust (local navigational/geographic frame: N-E-D)
   PropertyManager->Tie("atmosphere/gust-north-fps", this, eNorth, (PMF)&FGWinds::GetGustNED,
                                                           (PMFd)&FGWinds::SetGustNED);
+  PropertyManager->Tie("atmosphere/gust-north-mps", this, eNorth, (PMF)&FGWinds::GetGustNEDSI, (PMFd)&FGWinds::SetGustNEDSI);
   PropertyManager->Tie("atmosphere/gust-east-fps",  this, eEast, (PMF)&FGWinds::GetGustNED,
                                                           (PMFd)&FGWinds::SetGustNED);
+  PropertyManager->Tie("atmosphere/gust-east-mps",  this, eEast, (PMF)&FGWinds::GetGustNEDSI, (PMFd)&FGWinds::SetGustNEDSI);
   PropertyManager->Tie("atmosphere/gust-down-fps",  this, eDown, (PMF)&FGWinds::GetGustNED,
                                                           (PMFd)&FGWinds::SetGustNED);
+  PropertyManager->Tie("atmosphere/gust-down-mps",  this, eDown, (PMF)&FGWinds::GetGustNEDSI, (PMFd)&FGWinds::SetGustNEDSI);
 
   // User-specified 1 - cosine gust parameters (in specified frame)
   PropertyManager->Tie("atmosphere/cosine-gust/startup-duration-sec", this, (Ptr)0L, &FGWinds::StartupGustDuration);
@@ -522,10 +529,14 @@ void FGWinds::bind(void)
   // User-specified turbulence (local navigational/geographic frame: N-E-D)
   PropertyManager->Tie("atmosphere/turb-north-fps", this, eNorth, (PMF)&FGWinds::GetTurbNED,
                                                           (PMFd)&FGWinds::SetTurbNED);
+  PropertyManager->Tie("atmosphere/turb-north-mps", this, eNorth, (PMF)&FGWinds::GetTurbNEDSI, (PMFd)&FGWinds::SetTurbNEDSI);
   PropertyManager->Tie("atmosphere/turb-east-fps",  this, eEast, (PMF)&FGWinds::GetTurbNED,
                                                           (PMFd)&FGWinds::SetTurbNED);
+  PropertyManager->Tie("atmosphere/turb-east-mps",  this, eEast, (PMF)&FGWinds::GetTurbNEDSI, (PMFd)&FGWinds::SetTurbNEDSI);
   PropertyManager->Tie("atmosphere/turb-down-fps",  this, eDown, (PMF)&FGWinds::GetTurbNED,
                                                           (PMFd)&FGWinds::SetTurbNED);
+  PropertyManager->Tie("atmosphere/turb-down-mps",  this, eDown, (PMF)&FGWinds::GetTurbNEDSI, (PMFd)&FGWinds::SetTurbNEDSI);
+
   // Experimental turbulence parameters
   PropertyManager->Tie("atmosphere/p-turb-rad_sec", this,1, (PMF)&FGWinds::GetTurbPQR);
   PropertyManager->Tie("atmosphere/q-turb-rad_sec", this,2, (PMF)&FGWinds::GetTurbPQR);
@@ -546,8 +557,11 @@ void FGWinds::bind(void)
 
   // Total, calculated winds (local navigational/geographic frame: N-E-D). Read only.
   PropertyManager->Tie("atmosphere/total-wind-north-fps", this, eNorth, (PMF)&FGWinds::GetTotalWindNED);
+  PropertyManager->Tie("atmosphere/total-wind-north-mps", this, eNorth, (PMF)&FGWinds::GetTotalWindNEDSI);
   PropertyManager->Tie("atmosphere/total-wind-east-fps",  this, eEast,  (PMF)&FGWinds::GetTotalWindNED);
+  PropertyManager->Tie("atmosphere/total-wind-east-mps",  this, eEast,  (PMF)&FGWinds::GetTotalWindNEDSI);
   PropertyManager->Tie("atmosphere/total-wind-down-fps",  this, eDown,  (PMF)&FGWinds::GetTotalWindNED);
+  PropertyManager->Tie("atmosphere/total-wind-down-mps",  this, eDown,  (PMF)&FGWinds::GetTotalWindNEDSI);
 
 }
 
