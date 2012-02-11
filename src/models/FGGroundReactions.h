@@ -95,9 +95,13 @@ public:
   bool Run(bool Holding);
   bool Load(Element* el);
   const FGColumnVector3& GetForces(void) const {return vForces;}
+  FGColumnVector3 GetForcesSI(void) const {return vForces*lbston;}
   double GetForces(int idx) const {return vForces(idx);}
+  double GetForcesSI(int idx) const {return vForces(idx)*lbston;}
   const FGColumnVector3& GetMoments(void) const {return vMoments;}
+  FGColumnVector3 GetMomentsSI(void) const {return vMoments*lbston*fttom;}
   double GetMoments(int idx) const {return vMoments(idx);}
+  double GetMomentsSI(int idx) const {return vMoments(idx)*lbston*fttom;}
   string GetGroundReactionStrings(string delimeter) const;
   string GetGroundReactionValues(string delimeter) const;
   bool GetWOW(void) const;
