@@ -263,6 +263,19 @@ void FGBuoyantForces::bind(void)
                        (PGF)&FGBuoyantForces::GetForces, (PSF)0, false);
   PropertyManager->Tie("forces/fbz-buoyancy-lbs", this, eZ,
                        (PGF)&FGBuoyantForces::GetForces, (PSF)0, false);
+  /// SI unit support
+  PropertyManager->Tie("moments/l-buoyancy-ntmt", this, eL,
+                       (PGF)&FGBuoyantForces::GetMomentsSI, (PSF)0, false);
+  PropertyManager->Tie("moments/m-buoyancy-ntmt", this, eM,
+                       (PGF)&FGBuoyantForces::GetMomentsSI, (PSF)0, false);
+  PropertyManager->Tie("moments/n-buoyancy-ntmt", this, eN,
+                       (PGF)&FGBuoyantForces::GetMomentsSI, (PSF)0, false);
+  PropertyManager->Tie("forces/fbx-buoyancy-nt", this, eX,
+                       (PGF)&FGBuoyantForces::GetForcesSI, (PSF)0, false);
+  PropertyManager->Tie("forces/fby-buoyancy-nt", this, eY,
+                       (PGF)&FGBuoyantForces::GetForcesSI, (PSF)0, false);
+  PropertyManager->Tie("forces/fbz-buoyancy-nt", this, eZ,
+                       (PGF)&FGBuoyantForces::GetForcesSI, (PSF)0, false);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
