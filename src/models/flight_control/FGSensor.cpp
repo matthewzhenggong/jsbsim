@@ -172,6 +172,7 @@ void FGSensor::ProcessSensorSignal(void)
 
     Clip();
   }
+  if (IsOutput) SetOutput();
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
