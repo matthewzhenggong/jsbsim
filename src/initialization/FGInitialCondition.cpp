@@ -1336,21 +1336,41 @@ void FGInitialCondition::bind(void)
                        &FGInitialCondition::GetAltitudeASLFtIC,
                        &FGInitialCondition::SetAltitudeASLFtIC,
                        true);
+  PropertyManager->Tie("ic/h-sl-mt", this,
+                       &FGInitialCondition::GetAltitudeASLMtIC,
+                       &FGInitialCondition::SetAltitudeASLMtIC,
+                       true);
   PropertyManager->Tie("ic/h-agl-ft", this,
                        &FGInitialCondition::GetAltitudeAGLFtIC,
                        &FGInitialCondition::SetAltitudeAGLFtIC,
+                       true);
+  PropertyManager->Tie("ic/h-agl-mt", this,
+                       &FGInitialCondition::GetAltitudeAGLMtIC,
+                       &FGInitialCondition::SetAltitudeAGLMtIC,
                        true);
   PropertyManager->Tie("ic/terrain-elevation-ft", this,
                        &FGInitialCondition::GetTerrainElevationFtIC,
                        &FGInitialCondition::SetTerrainElevationFtIC,
                        true);
+  PropertyManager->Tie("ic/terrain-elevation-mt", this,
+                       &FGInitialCondition::GetTerrainElevationMtIC,
+                       &FGInitialCondition::SetTerrainElevationMtIC,
+                       true);
   PropertyManager->Tie("ic/vg-fps", this,
                        &FGInitialCondition::GetVgroundFpsIC,
                        &FGInitialCondition::SetVgroundFpsIC,
                        true);
+  PropertyManager->Tie("ic/vg-mps", this,
+                       &FGInitialCondition::GetVgroundMpsIC,
+                       &FGInitialCondition::SetVgroundMpsIC,
+                       true);
   PropertyManager->Tie("ic/vt-fps", this,
                        &FGInitialCondition::GetVtrueFpsIC,
                        &FGInitialCondition::SetVtrueFpsIC,
+                       true);
+  PropertyManager->Tie("ic/vt-mps", this,
+                       &FGInitialCondition::GetVtrueMpsIC,
+                       &FGInitialCondition::SetVtrueMpsIC,
                        true);
   PropertyManager->Tie("ic/vw-bx-fps", this,
                        &FGInitialCondition::GetWindUFpsIC);
@@ -1374,6 +1394,10 @@ void FGInitialCondition::bind(void)
   PropertyManager->Tie("ic/roc-fps", this,
                        &FGInitialCondition::GetClimbRateFpsIC,
                        &FGInitialCondition::SetClimbRateFpsIC,
+                       true);
+  PropertyManager->Tie("ic/roc-mps", this,
+                       &FGInitialCondition::GetClimbRateMpsIC,
+                       &FGInitialCondition::SetClimbRateMpsIC,
                        true);
   PropertyManager->Tie("ic/u-fps", this,
                        &FGInitialCondition::GetUBodyFpsIC,

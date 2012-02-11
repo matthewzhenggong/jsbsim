@@ -290,18 +290,23 @@ public:
   /** Sets the altitude above sea level initial condition in feet.
       @param altitudeASL Altitude above sea level in feet */
   void SetAltitudeASLFtIC(double altitudeASL);
+  void SetAltitudeASLMtIC(double altitudeASL)
+  { SetAltitudeASLFtIC(altitudeASL*mtoft); }
 
   /** Sets the initial Altitude above ground level.
       @param agl Altitude above ground level in feet */
   void SetAltitudeAGLFtIC(double agl);
+  void SetAltitudeAGLMtIC(double agl) { SetAltitudeAGLFtIC(agl*mtoft); }
 
   /** Sets the initial sea level radius from planet center
       @param sl_rad sea level radius in feet */
   void SetSeaLevelRadiusFtIC(double slr);
+  void SetSeaLevelRadiusMtIC(double slr) { SetSeaLevelRadiusFtIC(slr*mtoft); }
 
   /** Sets the initial terrain elevation.
       @param elev Initial terrain elevation in feet */
   void SetTerrainElevationFtIC(double elev);
+  void SetTerrainElevationMtIC(double elev) { SetTerrainElevationFtIC(elev*mtoft); }
 
   /** Sets the initial latitude.
       @param lat Initial latitude in degrees */
@@ -372,22 +377,27 @@ public:
   /** Gets the initial altitude above sea level.
       @return Initial altitude in feet. */
   double GetAltitudeASLFtIC(void) const { return position.GetAltitudeASL(); }
+  double GetAltitudeASLMtIC(void) const { return GetAltitudeASLFtIC()*fttom; }
 
   /** Gets the initial altitude above ground level.
       @return Initial altitude AGL in feet */
   double GetAltitudeAGLFtIC(void) const;
+  double GetAltitudeAGLMtIC(void) const { return GetAltitudeAGLFtIC()*fttom; }
 
   /** Gets the initial terrain elevation.
       @return Initial terrain elevation in feet */
   double GetTerrainElevationFtIC(void) const;
+  double GetTerrainElevationMtIC(void) const { return GetTerrainElevationFtIC()*fttom; }
 
   /** Sets the initial ground speed.
       @param vg Initial ground speed in feet/second */
   void SetVgroundFpsIC(double vg);
+  void SetVgroundMpsIC(double vg) { SetVgroundFpsIC(vg*mtoft); }
 
   /** Sets the initial true airspeed.
       @param vt Initial true airspeed in feet/second */
   void SetVtrueFpsIC(double vt);
+  void SetVtrueMpsIC(double vt) { SetVtrueFpsIC(vt*mtoft); }
 
   /** Sets the initial body axis X velocity.
       @param ubody Initial X velocity in feet/second */
@@ -454,14 +464,17 @@ public:
   /** Sets the initial climb rate.
       @param roc Initial Rate of climb in feet/second */
   void SetClimbRateFpsIC(double roc);
+  void SetClimbRateMpsIC(double roc) { SetClimbRateFpsIC(roc*mtoft); }
 
   /** Gets the initial ground velocity.
       @return Initial ground velocity in feet/second */
   double GetVgroundFpsIC(void) const  { return vUVW_NED.Magnitude(eU, eV); }
+  double GetVgroundMpsIC(void) const  { return vUVW_NED.Magnitude(eU, eV)*fttom; }
 
   /** Gets the initial true velocity.
       @return Initial true velocity in feet/second */
   double GetVtrueFpsIC(void) const { return vt; }
+  double GetVtrueMpsIC(void) const { return vt*fttom; }
 
   /** Gets the initial body axis X wind velocity.
       @return Initial body axis X wind velocity in feet/second */
@@ -511,6 +524,7 @@ public:
     FGColumnVector3 _vt_NED = Tb2l * Tw2b * FGColumnVector3(vt, 0., 0.);
     return _vt_NED(eW);
   }
+  double GetClimbRateMpsIC(void) const { return GetClimbRateFpsIC()*fttom; }
 
   /** Gets the initial body velocity
       @return Initial body velocity in feet/second. */
