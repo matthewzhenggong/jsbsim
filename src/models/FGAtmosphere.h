@@ -115,15 +115,21 @@ public:
   /// Returns the actual, modeled temperature at the current altitude in degrees Rankine.
   /// @return Modeled temperature in degrees Rankine.
   virtual double GetTemperature() const {return Temperature;}
+  double GetTemperatureC(void) const {return RankineToCelsius(GetTemperature());}
+  double GetTemperatureK(void) const {return GetTemperatureC() + 273.16;}
 
   /// Returns the actual modeled temperature in degrees Rankine at a specified altitude.
   /// @param altitude The altitude above sea level (ASL) in feet.
   /// @return Modeled temperature in degrees Rankine at the specified altitude.
   virtual double GetTemperature(double altitude) const = 0; 
+  double GetTemperatureC(double altitude) {return RankineToCelsius(GetTemperature(altitude));}
+  double GetTemperatureK(double altitude) {return GetTemperatureC(altitude)+273.16;}
 
   /// Returns the actual, modeled sea level temperature in degrees Rankine.
   /// @return The modeled temperature in degrees Rankine at sea level.
   virtual double GetTemperatureSL() const { return GetTemperature(0.0); }
+  double GetTemperatureSLC(void) const { return RankineToCelsius(GetTemperatureSL()); }
+  double GetTemperatureSLK(void) const { return GetTemperatureSLC() + 273.16; }
 
   /// Returns the ratio of the at-current-altitude temperature as modeled
   /// over the sea level value.
@@ -150,12 +156,15 @@ public:
   //@{
   /// Returns the pressure in psf.
   virtual double GetPressure(void)  const {return Pressure;}
+  double GetPressureSI(void)  const {return GetPressure()*psftopa;}
 
   /// Returns the pressure at a specified altitude in psf.
   virtual double GetPressure(double altitude) const = 0;
+  double GetPressureSI(double altitude)  const {return GetPressure(altitude)*psftopa;}
 
   /// Returns the sea level pressure in psf.
   virtual double GetPressureSL(void) const { return SLpressure; }
+  double GetPressureSLSI(void)  const {return GetPressureSL()*psftopa;}
 
   /// Returns the ratio of at-altitude pressure over the sea level value.
   virtual double GetPressureRatio(void) const { return Pressure*rSLpressure; }
@@ -173,12 +182,15 @@ public:
   /** Returns the density in slugs/ft^3.
       This function may only be used if Run() is called first. */
   virtual double GetDensity(void)  const {return Density;}
+  double GetDensitySI(void)  const {return GetDensity() * 515.46;}
 
   /** Returns the density in slugs/ft^3 at a given altitude in ft. */
   virtual double GetDensity(double altitude) const;
+  double GetDensitySI(double altitude){return GetDensity(altitude) * 515.46;}
 
   /// Returns the sea level density in slugs/ft^3
   virtual double GetDensitySL(void)  const { return SLdensity; }
+  double GetDensitySLSI(void)  const { return GetDensitySL() * 515.46; }
 
   /// Returns the ratio of at-altitude density over the sea level value.
   virtual double GetDensityRatio(void) const { return Density*rSLdensity; }
@@ -189,9 +201,11 @@ public:
   //@{
   /// Returns the speed of sound in ft/sec.
   virtual double GetSoundSpeed(void) const {return Soundspeed;}
+  double GetSoundSpeedSI(void) const {return GetSoundSpeed() * fttom;}
 
   /// Returns the sea level speed of sound in ft/sec.
   virtual double GetSoundSpeedSL(void) const { return SLsoundspeed; }
+  double GetSoundSpeedSLSI(void) const { return GetSoundSpeedSL() * fttom; }
 
   /// Returns the ratio of at-altitude sound speed over the sea level value.
   virtual double GetSoundSpeedRatio(void) const { return Soundspeed*rSLsoundspeed; }
@@ -208,8 +222,10 @@ public:
   //@}
 
   virtual double GetDensityAltitude() const {return DensityAltitude;}
+  double GetDensityAltitudeSI(void) const { return GetDensityAltitude() * fttom; }
 
   virtual double GetPressureAltitude() const {return PressureAltitude;}
+  double GetPressureAltitudeSI(void) const { return GetPressureAltitude() * fttom; }
 
   struct Inputs {
     double altitudeASL;

@@ -208,19 +208,31 @@ void FGAtmosphere::bind(void)
   typedef double (FGAtmosphere::*PMFi)(int) const;
   typedef void (FGAtmosphere::*PMF)(int, double);
   PropertyManager->Tie("atmosphere/T-R", this, &FGAtmosphere::GetTemperature);
+  PropertyManager->Tie("atmosphere/T-C", this, &FGAtmosphere::GetTemperatureC);
+  PropertyManager->Tie("atmosphere/T-K", this, &FGAtmosphere::GetTemperatureK);
   PropertyManager->Tie("atmosphere/rho-slugs_ft3", this, &FGAtmosphere::GetDensity);
+  PropertyManager->Tie("atmosphere/rho-mt_ft3", this, &FGAtmosphere::GetDensitySI);
   PropertyManager->Tie("atmosphere/P-psf", this, &FGAtmosphere::GetPressure);
+  PropertyManager->Tie("atmosphere/P-pa", this, &FGAtmosphere::GetPressureSI);
   PropertyManager->Tie("atmosphere/a-fps", this, &FGAtmosphere::GetSoundSpeed);
+  PropertyManager->Tie("atmosphere/a-mps", this, &FGAtmosphere::GetSoundSpeedSI);
   PropertyManager->Tie("atmosphere/T-sl-R", this, &FGAtmosphere::GetTemperatureSL);
+  PropertyManager->Tie("atmosphere/T-sl-C", this, &FGAtmosphere::GetTemperatureSLC);
+  PropertyManager->Tie("atmosphere/T-sl-K", this, &FGAtmosphere::GetTemperatureSLK);
   PropertyManager->Tie("atmosphere/rho-sl-slugs_ft3", this, &FGAtmosphere::GetDensitySL);
+  PropertyManager->Tie("atmosphere/rho-sl-mt_ft3", this, &FGAtmosphere::GetDensitySLSI);
   PropertyManager->Tie("atmosphere/P-sl-psf", this, &FGAtmosphere::GetPressureSL);
+  PropertyManager->Tie("atmosphere/P-sl-pa", this, &FGAtmosphere::GetPressureSLSI);
   PropertyManager->Tie("atmosphere/a-sl-fps", this, &FGAtmosphere::GetSoundSpeedSL);
+  PropertyManager->Tie("atmosphere/a-sl-mps", this, &FGAtmosphere::GetSoundSpeedSLSI);
   PropertyManager->Tie("atmosphere/theta", this, &FGAtmosphere::GetTemperatureRatio);
   PropertyManager->Tie("atmosphere/sigma", this, &FGAtmosphere::GetDensityRatio);
   PropertyManager->Tie("atmosphere/delta", this, &FGAtmosphere::GetPressureRatio);
   PropertyManager->Tie("atmosphere/a-ratio", this, &FGAtmosphere::GetSoundSpeedRatio);
   PropertyManager->Tie("atmosphere/density-altitude", this, &FGAtmosphere::GetDensityAltitude);
   PropertyManager->Tie("atmosphere/pressure-altitude", this, &FGAtmosphere::GetPressureAltitude);
+  PropertyManager->Tie("atmosphere/density-altitude-mt", this, &FGAtmosphere::GetDensityAltitudeSI);
+  PropertyManager->Tie("atmosphere/pressure-altitude-mt", this, &FGAtmosphere::GetPressureAltitudeSI);
 }
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
