@@ -94,6 +94,8 @@ FGFCSComponent::FGFCSComponent(FGFCS* _fcs, Element* element) : fcs(_fcs)
     Type = "DEADBAND";
   } else if (element->GetName() == string("fcs_function")) {
     Type = "FCS_FUNCTION";
+  } else if (element->GetName() == string("fcs_plugin")) {
+    Type = "FCS_PLUGIN";
   } else if (element->GetName() == string("pid")) {
     Type = "PID";
   } else if (element->GetName() == string("sensor")) {

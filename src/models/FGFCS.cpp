@@ -60,6 +60,10 @@ INCLUDES
 #include "models/flight_control/FGMagnetometer.h"
 #include "models/flight_control/FGGyro.h"
 
+#if USE_FGFCSPLUGIN
+#  include "models/flight_control/FGFCSPlugin.h"
+#endif
+
 using namespace std;
 
 namespace JSBSim {
@@ -150,6 +154,10 @@ bool FGFCS::InitModel(void)
       ((FGFilter*)Systems[i])->ResetPastStates();
     } else if (Systems[i]->GetType() == "PID" ) {
       ((FGPID*)Systems[i])->ResetPastStates();
+#if USE_FGFCSPLUGIN
+    } else if (Systems[i]->GetType() == "FCS_PLUGIN" ) {
+      ((FGFCSPlugin*)Systems[i])->ResetPastStates();
+#endif
     }
   }
 
@@ -163,6 +171,10 @@ bool FGFCS::InitModel(void)
       ((FGFilter*)FCSComponents[i])->ResetPastStates();
     } else if (FCSComponents[i]->GetType() == "PID" ) {
       ((FGPID*)FCSComponents[i])->ResetPastStates();
+#if USE_FGFCSPLUGIN
+    } else if (Systems[i]->GetType() == "FCS_PLUGIN" ) {
+      ((FGFCSPlugin*)Systems[i])->ResetPastStates();
+#endif
     }
   }
 
@@ -176,6 +188,10 @@ bool FGFCS::InitModel(void)
       ((FGFilter*)APComponents[i])->ResetPastStates();
     } else if (APComponents[i]->GetType() == "PID" ) {
       ((FGPID*)APComponents[i])->ResetPastStates();
+#if USE_FGFCSPLUGIN
+    } else if (Systems[i]->GetType() == "FCS_PLUGIN" ) {
+      ((FGFCSPlugin*)Systems[i])->ResetPastStates();
+#endif
     }
   }
 
@@ -652,6 +668,10 @@ bool FGFCS::Load(Element* el, SystemType systype)
           Components->push_back(new FGMagnetometer(this, component_element));
         } else if (component_element->GetName() == string("gyro")) {
           Components->push_back(new FGGyro(this, component_element));
+#if USE_FGFCSPLUGIN
+        } else if (component_element->GetName() == string("fcs_plugin")) {
+          Components->push_back(new FGFCSPlugin(this, component_element));
+#endif
         } else {
           cerr << "Unknown FCS component: " << component_element->GetName() << endl;
         }

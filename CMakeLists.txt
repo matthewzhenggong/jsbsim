@@ -90,6 +90,7 @@ option(VERBOSE_LIB "Verbose library building." OFF)
 option(DEV_MODE "Setup paths for developer testing." OFF)
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static." OFF)
 option(WITH_GUI "Build the gui." OFF)
+option(USE_FGFCSPLUGIN "Use extra component FGFCSPlugin" OFF)
 
 # built variables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
@@ -143,6 +144,10 @@ if (WITH_GUI)
     endif()
 endif()
 
+if (USE_FGFCSPLUGIN)
+  find_package(LTDL)
+endif()
+
 #find_or_build_arkcomm(${ARKCOMM_VERSION} ${EP_BASE_DIR} ${EP_INSTALL_PREFIX} ${EP_DATADIR})
 
 # install data files
@@ -174,6 +179,9 @@ include_directories(src src/simgear/xml)
 add_definitions(-DHAVE_EXPAT_CONFIG_H)
 if (MSVC)
     add_definitions(-D_USE_MATH_DEFINES)
+endif()
+if (USE_FGFCSPLUGIN)
+    add_definitions(-DUSE_FGFCSPLUGIN=1)
 endif()
 
 install(FILES
@@ -290,6 +298,12 @@ install(FILES
     src/models/flight_control/FGKinemat.h
     DESTINATION include/jsbsim/models/flight_control
     )
+if (USE_FGFCSPLUGIN)
+    install(FILES
+        src/models/flight_control/FGFCSPlugin.h
+        DESTINATION include/jsbsim/models/flight_control
+        )
+endif()
 install(FILES
     src/models/propulsion/FGElectric.h
     src/models/propulsion/FGTurbine.h
@@ -369,6 +383,7 @@ add_library(libjsbsim
     src/models/flight_control/FGGain.cpp
     src/models/flight_control/FGSensor.cpp
     src/models/flight_control/FGKinemat.cpp
+    src/models/flight_control/FGFCSPlugin.cpp
     src/models/FGBuoyantForces.cpp
     src/models/FGExternalForce.cpp
     src/models/FGLGear.cpp
@@ -424,6 +439,9 @@ endif()
 if(MINGW)
     find_library(WSOCK32 NAMES wsock32 ws2_32)
     target_link_libraries(libjsbsim ${WSOCK32})
+endif()
+if (USE_FGFCSPLUGIN)
+    target_link_libraries(libjsbsim ${LTDL_LIBRARIES})
 endif()
 install(TARGETS libjsbsim DESTINATION lib)
 
