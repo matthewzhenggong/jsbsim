@@ -1,86 +1,120 @@
 include(${QT_USE_FILE})
 add_definitions(-DUSE_QT4)
 
-if (WITH_ARKOSG AND (NOT BUILD_SHARED_LIBRARIES))
+if (WITH_ARKOSG AND WITH_PREFER_STATIC)
     add_definitions(-DOSG_LIBRARY_STATIC)
 endif()
 
 link_directories(
     ${OPENSCENEGRAPH_LIBRARY_DIRS}
     ${QT_LIBRARY_DIRS}
-	#${Boost_LIBRARY_DIRS})
     )
 
-include_directories(. 
+include_directories(
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_BINARY_DIR}/gui
     ${ARKOSG_INCLUDE_DIRS}
     ${OPENSCENEGRAPH_INCLUDE_DIRS}
-	${QT_INCLUDE_DIRS}
+    ${QT_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIR}
-	${Boost_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_BINARY_DIR}
+    ${Boost_INCLUDE_DIRS}
     )
 
-set(JSBSimGui_moc_src
-	MainWindow.hpp
-	)
-
-set(JSBSimGui_ui_src
+set(JSBSIMGUI_MOC_SRC
+    MainWindow.hpp
     )
-
+set(JSBSIMGUI_UI_SRC
+    )
 if (WITH_ARKOSG)
-    list(APPEND JSBSimGui_ui_src
+    list(APPEND JSBSIMGUI_UI_SRC
         MainWindow_OSG.ui
         )
 else()
-    list(APPEND JSBSimGui_ui_src
+    list(APPEND JSBSIMGUI_UI_SRC
         MainWindow.ui
         )
 endif()
+#set(JSBSIMGUI_RES_SRC
+    #textures.qrc
+    #)
 
-set(JSBSimGui_res
-    textures.qrc
-	)
+qt4_wrap_cpp(JSBSIMGUI_MOC ${JSBSIMGUI_MOC_SRC})
+qt4_wrap_ui(JSBSIMGUI_UI ${JSBSIMGUI_UI_SRC})
+#qt4_add_resources(JSBSIMGUI_RES ${JSBSIMGUI_RES_SRC})
 
-qt4_wrap_cpp(JSBSimGui_moc ${JSBSimGui_moc_src})
-qt4_wrap_ui(JSBSimGui_ui ${JSBSimGui_ui_src})
-qt4_add_resources(JSBSimGui_res ${JSBSimGui_res_src})
-
-set(JSBSimGui_src
-	MainWindow.cpp
-	main.cpp
-	${JSBSimGui_moc}
-	${JSBSimGui_ui}
-	${JSBSimGui_res}
-	)
-
-add_executable(JSBSimGui ${JSBSimGui_src})
-
-set(JSBSimGuiLinkLibs
-    libjsbsim
-    ${QT_LIBRARIES}
+set(JSBSIMGUI_SRCS
+    MainWindow.cpp
+    main.cpp
+    ${JSBSIMGUI_MOC}
+    ${JSBSIMGUI_UI}
+    #${JSBSIMGUI_RES}
     )
 
+# set icns file containing icons
+if (APPLE)
+    # set how it shows up in Info.plist (no prepended path!!)
+    set(MACOSX_BUNDLE_ICON_FILE jsbsim.icns)
+    # set where in the bundle to put the icns file
+    set_source_files_properties(${CMAKE_SOURCE_DIR}/cmake/jsbsim.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    # include the icns file in the target
+    list(APPEND JSBSIMGUI_SRCS ${CMAKE_SOURCE_DIR}/cmake/jsbsim.icns)
+endif()
+
+# resources
+install(FILES plane.ac jsbsim.png DESTINATION share/jsbsim/gui COMPONENT Runtime)
+
+# install gnome menu
+if (UNIX AND NOT APPLE)
+    install(FILES jsbsim.desktop DESTINATION share/applications COMPONENT Runtime)
+endif()
+
+# linking
+set(JSBSIMGUI_LIBS
+    jsbsimStatic
+    ${QT_LIBRARIES}
+    )
+if(MINGW)
+    list(APPEND JSBSIMGUI_LIBS lcms lzma)
+endif()
+if (MSVC)
+    add_executable(jsbsim-gui ${JSBSIMGUI_SRCS})
+else()
+    add_executable(jsbsim-gui WIN32 MACOSX_BUNDLE ${JSBSIMGUI_SRCS})
+endif()
 if (WITH_ARKOSG)
-    list(APPEND JSBSimGuiLinkLibs
+    list(APPEND JSBSIMGUI_LIBS
         ${ARKOSG_LIBRARIES}
-        ${OPENSCENEGRAPH_LIBRARIES} 
+        ${OSG_PLUGINS_LIBRARIES}
+        ${OPENSCENEGRAPH_LIBRARIES}
         ${OPENGL_LIBRARIES}
-        ${Boost_LIBRARIES}
-        pthread
         )
-    add_dependencies(JSBSimGui arkosg)
+    add_dependencies(jsbsim-gui arkosg qt osg)
 endif()
+target_link_libraries(jsbsim-gui ${JSBSIMGUI_LIBS})
+message(STATUS "installed targets: ${INSTALLED_TARGETS}")
+install(TARGETS jsbsim-gui 
+    RUNTIME DESTINATION "bin" COMPONENT Runtime
+    BUNDLE DESTINATION "/Applications" COMPONENT Runtime
+    )
 
-if (WIN32)
-    if (NOT BUILD_SHARED_LIBS)
-        list(APPEND JSBSimGuiLinkLibs
-            lcms
-            lzma
-        )
+# bundle dependencies
+if(WITH_BUNDLE AND NOT MSVC)
+    message(WARNING "Have not yet been able to get bundling to work.")
+
+    # install needed qt plugins
+    install(DIRECTORY "${QT_PLUGINS_DIR}" DESTINATION bin/plugins COMPONENT Runtime)
+
+    if (APPLE)
+        set(APPS "\$ENV{DESTDIR}/Applications/jsbsim-gui.app/Contents/MacOS/jsbsim-gui")  # paths to executables
+    else()
+        set(APPS "\$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/bin/jsbsim-gui")  # paths to executables
     endif()
+    install(CODE "
+        set(DIRS \"${QT_LIBRARY_DIR}\") # directories to search for prerequisites
+        file(GLOB_RECURSE QTPLUGINS
+            \"${QT_PLUGINS_DIR}/*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
+        include(BundleUtilities)
+        fixup_bundle(\"${APPS}\"   \"\${QTPLUGINS}\"   \"\${DIRS}\")
+        " COMPONENT Runtime)
 endif()
-
-add_test(JSBSimGui ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/JSBSimGui)
-target_link_libraries(JSBSimGui ${JSBSimGuiLinkLibs})
-install(TARGETS JSBSimGui DESTINATION bin)

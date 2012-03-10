@@ -20,12 +20,16 @@
 #define MainWindow_HPP
 
 #include <QWidget>
-#include "ui_MainWindow.h"
 #include <QMutex>
 #include <QTimer>
+#include <QDir>
+#include "gui_config.h"
 
 #ifdef WITH_ARKOSG
     #include "arkosg/osgUtils.hpp"
+    #include "ui_MainWindow_OSG.h"
+#else
+    #include "ui_MainWindow.h"
 #endif
 
 #include "math/FGNelderMead.h"
@@ -36,6 +40,7 @@
 #include <stdexcept>
 #include <math/FGStateSpace.h>
 #include <initialization/FGTrimmer.h>
+#include "models/FGOutput.h"
 
 class MainWindow;
 
@@ -80,7 +85,6 @@ private slots:
     void on_toolButton_systemsPath_pressed();
     void on_toolButton_aircraftPath_pressed();
     void on_toolButton_aircraft_pressed();
-    void on_toolButton_initScript_pressed();
     void on_toolButton_outputPath_pressed();
     void on_pushButton_trim_pressed();
     void on_pushButton_stop_pressed();
@@ -89,6 +93,10 @@ private slots:
     void on_pushButton_save_pressed();
     void on_pushButton_generateScript_pressed();
     void on_pushButton_setGuess_pressed();
+    //void on_pushButton_flightGearConnect_pressed();
+    //void on_pushButton_flightGearDisconnect_pressed();
+    void flightGearConnect();
+    void flightGearDisconnect();
 	void showMsg(const QString & str);
 	void simulate();
     void trim();
@@ -108,15 +116,18 @@ private:
 		    std::vector<double> data = window->trimmer->constrain(v);
 
 #ifdef WITH_ARKOSG
-	        double maxDeflection = 20.0*3.14/180.0; // TODO: this is rough
-				// should depend on aircraft, but currently no access
-			window->viewer->mutex.lock();
-			window->plane->setEuler(data[0],data[1],v[5]);
-				// phi, theta, beta to show orient, and side slip
-			window->plane->setU(v[0],v[3]*maxDeflection,
-					v[1]*maxDeflection,v[4]*maxDeflection);
-			window->viewer->mutex.unlock();
+            if (window->plane) {
+                double maxDeflection = 20.0*3.14/180.0; // TODO: this is rough
+                    // should depend on aircraft, but currently no access
+                window->viewer->mutex.lock();
+                window->plane->setEuler(data[0],data[1],v[5]);
+                    // phi, theta, beta to show orient, and side slip
+                window->plane->setU(v[0],v[3]*maxDeflection,
+                        v[1]*maxDeflection,v[4]*maxDeflection);
+                window->viewer->mutex.unlock();
+            }
 #endif
+            if (window->socket) window->socket->FlightGearSocketOutput();
 		}
 		MainWindow * window;
 	};
@@ -144,14 +155,21 @@ private:
 	void writeSettings();
 	void readSettings();
     bool setupFdm();
+    QString root;
+    QString joinPath(const QString & path1, const QString & path2) {
+        QString path = QDir::toNativeSeparators(path1)+QDir::toNativeSeparators(path2);
+        return QDir::toNativeSeparators(path);
+    }
 #ifdef WITH_ARKOSG
     arkosg::Plane * plane;
+    QDir modelPath;
 #endif
 	JSBSim::FGFDMExec * fdm;
     JSBSim::FGStateSpace * ss;
     JSBSim::FGTrimmer::Constraints * constraints;
 	JSBSim::FGTrimmer * trimmer;
     JSBSim::FGNelderMead * solver;
+    JSBSim::FGOutput * socket;
     QMutex mutex;
 };
 
