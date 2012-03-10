@@ -19,7 +19,18 @@
 #include "MainWindow.hpp"
 #include <QFileDialog>
 #include <QMessageBox>
+
+#ifdef WITH_ARKOSG
 #include <osg/Vec3d>
+#endif
+
+// Static linking of OSG needs special macros
+#ifdef OSG_LIBRARY_STATIC
+#include <osgDB/Registry>
+USE_GRAPHICSWINDOW();
+USE_OSGPLUGIN(rgb);
+USE_OSGPLUGIN(ac);
+#endif
 
 #include <cstdlib>
 #include <fstream>
@@ -30,12 +41,15 @@
 #include <models/propulsion/FGTurbine.h>
 #include <models/propulsion/FGTurboProp.h>
 #include <FGJSBBase.h>
+#include "input_output/FGPropertyManager.h"
+#include <stdexcept>
 
 MainWindow::MainWindow() : 
 #ifdef WITH_ARKOSG
     sceneRoot(new osg::Group),
 #endif
 	callback(new SolverCallback(this)), trimThread(this), simThread(this),
+    root(),
 #ifdef WITH_ARKOSG
     plane(NULL),
 #endif
@@ -44,6 +58,7 @@ MainWindow::MainWindow() :
     ss(NULL),
     constraints(new JSBSim::FGTrimmer::Constraints),
 	trimmer(NULL),
+    socket(NULL),
     mutex(QMutex::NonRecursive)
 {
     setupUi(this);
@@ -55,28 +70,74 @@ MainWindow::MainWindow() :
     sceneRoot->addChild(new arkosg::Frame(20,"N","E","D"));
 #endif
 
-	// read initial settings
+#ifdef WITH_ARKOSG
+
+
+    // initialize settings
 	QCoreApplication::setOrganizationName("jsbsim");
     QCoreApplication::setOrganizationDomain("jsbsim.sf.net");
     QCoreApplication::setApplicationName("trim");
+    settings = new QSettings;
 
-	settings = new QSettings;
+    // read root
+    settings->beginGroup("main");
+    root = settings->value("root",QDir::toNativeSeparators(INSTALL_DATA_DIR)).toString();
+	settings->endGroup();
+
+	// load plane model
+    bool rootChanged = false; // has the root directory changed?
+    while(1) {
+
+        // attempt to load plane
+        try
+        {
+            plane = new arkosg::Plane(joinPath(root,QString("/gui/plane.ac")).toStdString());
+        }
+
+        // if load failed
+        catch(const std::exception & e)
+        {
+            showMsg(QString(e.what()));		
+            std::cout << "exception: " << e.what() << std::endl;
+            plane = NULL;
+
+            // ask user if they would like to locate model
+            QMessageBox msgBox;
+            msgBox.setText("Cannot find jsbsim data root (usually located at: INSTALL_PREFIX/share/jsbsim)");
+            msgBox.setInformativeText("Would you like to locate it?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::Yes);
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::Yes) {
+                root = QFileDialog::getExistingDirectory(
+                     this, tr("Select JSBSim Data Directory (usually at INSTALL_PREFIX/share/jsbsim)"),
+                     root,QFileDialog::ShowDirsOnly);
+                rootChanged = true;
+                continue;
+            }
+        }
+
+        // add plane to scene if found
+        if (plane) {
+            plane->addChild(new arkosg::Frame(15,"X","Y","Z"));
+            sceneRoot->addChild(plane);
+
+            // save new root if changed
+            if (rootChanged) {
+                settings->clear();
+                settings->beginGroup("main");
+                settings->setValue("root",QDir::toNativeSeparators(root));
+                settings->endGroup();
+            }
+        }
+        break;
+    }
+
+#endif
+
+    // initialize all settings 
 	readSettings();
 	writeSettings();
-
-#ifdef WITH_ARKOSG
-	// load plane model
-    try
-    {
-        plane = new arkosg::Plane(ARKOSG_DATA_DIR+std::string("/models/plane.ac"));
-        plane->addChild(new arkosg::Frame(15,"X","Y","Z"));
-        sceneRoot->addChild(plane);
-    }
-    catch(const std::exception & e)
-    {
-		showMsg(e.what());		
-    }
-#endif
 }
 
 MainWindow::~MainWindow()
@@ -85,17 +146,21 @@ MainWindow::~MainWindow()
 #ifdef WITH_ARKOSG
     delete viewer;
 #endif
+    flightGearDisconnect();
 }
 
 void MainWindow::writeSettings()
 {
+	settings->beginGroup("main");
+	settings->setValue("root",QDir::toNativeSeparators(root));
+	settings->endGroup();
+
 	settings->beginGroup("aircraft");
 	settings->setValue("modelSimRate",lineEdit_modelSimRate->text());
 	settings->setValue("enginePath",lineEdit_enginePath->text());
 	settings->setValue("systemsPath",lineEdit_systemsPath->text());
 	settings->setValue("aircraftPath",lineEdit_aircraftPath->text());
 	settings->setValue("aircraft",lineEdit_aircraft->text());
-	settings->setValue("initScript",lineEdit_initScript->text());
 	settings->endGroup();
 
 	settings->beginGroup("trim");
@@ -165,20 +230,24 @@ void MainWindow::writeSettings()
     settings->beginGroup("output");
     settings->setValue("outputPath",lineEdit_outputPath->text());
     settings->setValue("caseName",lineEdit_caseName->text());
+    settings->setValue("flightGearPort",lineEdit_flightGearPort->text());
+    settings->setValue("flightGearHost",lineEdit_flightGearHost->text());
+    settings->setValue("flightGearRate",lineEdit_flightGearRate->text());
 	settings->endGroup();
 }
 
 void MainWindow::readSettings()
 {
-	QString root(DATADIR);
+    settings->beginGroup("main");
+    root = settings->value("root",QDir::toNativeSeparators(INSTALL_DATA_DIR)).toString();
+	settings->endGroup();
 
 	settings->beginGroup("aircraft");
 	lineEdit_modelSimRate->setText(settings->value("modelSimRate",120).toString());
-	lineEdit_enginePath->setText(settings->value("enginePath",root+"/engine").toString());
-	lineEdit_systemsPath->setText(settings->value("systemsPath",root+"/aircraft/f16/Systems").toString());
-	lineEdit_aircraftPath->setText(settings->value("aircraftPath",root+"/aircraft/f16").toString());
+	lineEdit_enginePath->setText(settings->value("enginePath",joinPath(root,QString("/engine"))).toString());
+	lineEdit_systemsPath->setText(settings->value("systemsPath",joinPath(root,QString("/aircraft/f16/Systems"))).toString());
+	lineEdit_aircraftPath->setText(settings->value("aircraftPath",joinPath(root,QString("/aircraft/f16"))).toString());
 	lineEdit_aircraft->setText(settings->value("aircraft","f16").toString());
-	lineEdit_initScript->setText(settings->value("initScript","/aircraft/f16/reset00.xml").toString());
 	settings->endGroup();
 
 	settings->beginGroup("trim");
@@ -249,6 +318,9 @@ void MainWindow::readSettings()
     settings->beginGroup("output");
     lineEdit_outputPath->setText(settings->value("outputPath",".").toString());
     lineEdit_caseName->setText(settings->value("caseName","1").toString());
+    lineEdit_flightGearPort->setText(settings->value("flightGearPort","6001").toString());
+    lineEdit_flightGearHost->setText(settings->value("flightGearHost","localhost").toString());
+    lineEdit_flightGearRate->setText(settings->value("flightGearRate","120").toString());
 	settings->endGroup();
 }
 
@@ -257,7 +329,7 @@ void MainWindow::on_toolButton_enginePath_pressed()
     lineEdit_enginePath->setText(QFileDialog::getExistingDirectory(
                                      this, tr("Select Engine Path"),
                                      lineEdit_enginePath->text(),
-                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+                                     QFileDialog::ShowDirsOnly));
 }
 
 void MainWindow::on_toolButton_systemsPath_pressed()
@@ -265,7 +337,7 @@ void MainWindow::on_toolButton_systemsPath_pressed()
     lineEdit_systemsPath->setText(QFileDialog::getExistingDirectory(
                                       this, tr("Select Systems Path"),
                                       lineEdit_systemsPath->text(),
-                                      QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+                                      QFileDialog::ShowDirsOnly));
 }
 
 void MainWindow::on_toolButton_aircraftPath_pressed()
@@ -273,7 +345,7 @@ void MainWindow::on_toolButton_aircraftPath_pressed()
     lineEdit_aircraftPath->setText(QFileDialog::getExistingDirectory(
                                        this, tr("Select Aircraft Path"),
                                        lineEdit_aircraftPath->text(),
-                                       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+                                       QFileDialog::ShowDirsOnly));
 }
 
 void MainWindow::on_toolButton_aircraft_pressed()
@@ -281,7 +353,7 @@ void MainWindow::on_toolButton_aircraft_pressed()
     QString path(QFileDialog::getExistingDirectory(
                      this, tr("Select Aircraft Directory"),
                      lineEdit_aircraftPath->text(),
-                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+                     QFileDialog::ShowDirsOnly));
     if (!path.isNull())
     {
         QFileInfo pathInfo(path);
@@ -290,19 +362,12 @@ void MainWindow::on_toolButton_aircraft_pressed()
     
 }
 
-void MainWindow::on_toolButton_initScript_pressed()
-{
-    lineEdit_initScript->setText(QFileDialog::getOpenFileName(this,
-                                 tr("Select Initialization Script"),lineEdit_initScript->text(),
-                                 tr("JSBSim Scripts (*.xml)")));
-}
-
 void MainWindow::on_toolButton_outputPath_pressed()
 {
     lineEdit_outputPath->setText(QFileDialog::getExistingDirectory(
                                        this, tr("Select Output Path"),
                                        lineEdit_outputPath->text(),
-                                       QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks));
+                                       QFileDialog::ShowDirsOnly));
 }
 
 void MainWindow::on_pushButton_trim_pressed()
@@ -346,6 +411,38 @@ void MainWindow::on_pushButton_setGuess_pressed()
     lineEdit_alphaGuess->setText(QString::number(fdm->GetAuxiliary()->Getalpha(FGJSBBase::inDegrees),'g',6));
     lineEdit_betaGuess->setText(QString::number(fdm->GetAuxiliary()->Getbeta(FGJSBBase::inDegrees),'g',6));
     writeSettings();
+}
+
+//void MainWindow::on_pushButton_flightGearConnect_pressed() {
+    //flightGearConnect();
+//}
+
+//void MainWindow::on_pushButton_flightGearDisconnect_pressed() {
+    //flightGearDisconnect();
+//}
+
+void MainWindow::flightGearConnect() {
+    if (!socket) {
+        label_status->setText("please press simulate or trim first");
+        return;
+    }
+    int subSystems = 1;
+    std::vector<JSBSim::FGPropertyManager *> outputProperties;
+    socket->Disable();
+    if (!socket->Load(subSystems,"UDP","FLIGHTGEAR",
+                lineEdit_flightGearPort->text().toStdString(),
+                lineEdit_flightGearHost->text().toStdString(),
+                lineEdit_flightGearRate->text().toUInt(),
+                outputProperties)) {
+        label_status->setText("unable to open FlightGear socket");
+    }
+    socket->Enable();
+}
+
+void MainWindow::flightGearDisconnect() {
+    if (fdm) delete fdm;
+    if (socket) delete socket;
+    label_status->setText("closed socket and terminated simulation");
 }
 
 void MainWindow::save()
@@ -503,6 +600,9 @@ bool MainWindow::setupFdm() {
 
     if (fdm) delete fdm;
     fdm = new FGFDMExec;
+    if (socket) delete socket;
+    socket = new JSBSim::FGOutput(fdm);
+    socket->Disable();
 
     if (ss) delete ss;
     ss = new FGStateSpace(JSBSim::FGStateSpace(fdm));
@@ -520,7 +620,6 @@ bool MainWindow::setupFdm() {
 	std::string aircraftPath=lineEdit_aircraftPath->text().toStdString();
 	std::string enginePath=lineEdit_enginePath->text().toStdString();
 	std::string systemsPath=lineEdit_systemsPath->text().toStdString();
-	std::string initScript=lineEdit_initScript->text().toStdString();
 
 	// flight conditions
 	bool stabAxisRoll = checkBox_stabAxisRoll->isChecked();
@@ -598,6 +697,10 @@ bool MainWindow::setupFdm() {
     if (trimmer && solver && solver->status() == 0) {
         trimmer->printSolution(std::cout,solver->getSolution()); // this also loads the solution into the fdm
     }
+
+    // connect to socket
+    // TODO do this based on switch
+    flightGearConnect();
     return true;
 }
 
@@ -619,13 +722,16 @@ void MainWindow::simulate()
 	fdm->Run();
 
 #ifdef WITH_ARKOSG
-	double maxDeflection = 20.0*3.14/180.0; // TODO: this is rough
-	viewer->mutex.lock();
-	plane->setEuler(ss->x.get(6),ss->x.get(2),ss->x.get(9));
-	plane->setU(ss->u.get(0),ss->u.get(1)*maxDeflection,
-			ss->u.get(2)*maxDeflection,ss->u.get(3)*maxDeflection);
-	viewer->mutex.unlock();
+    if (plane) {
+        double maxDeflection = 20.0*3.14/180.0; // TODO: this is rough
+        viewer->mutex.lock();
+        plane->setEuler(ss->x.get(6),ss->x.get(2),ss->x.get(9));
+        plane->setU(ss->u.get(0),ss->u.get(1)*maxDeflection,
+                ss->u.get(2)*maxDeflection,ss->u.get(3)*maxDeflection);
+        viewer->mutex.unlock();
+    }
 #endif
+    if (socket) socket->FlightGearSocketOutput();
 
     //std::cout << "sim thread unlocked mutex" << std::endl;
 }
